@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/product_overview_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -13,11 +15,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: Colors.purple,
+          secondary: Colors.deepOrange,
+        ),
+        fontFamily: 'Lato',
       ),
-      home: Center(child: Text('Flutter Demo Home Page')),
+      home: ProductOverviewScreen(),
     );
   }
 }
-
