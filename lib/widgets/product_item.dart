@@ -1,6 +1,8 @@
-// ignore_for_file: prefer_const_constructors_in_immutables
+// ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+
+import '../screens/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
   final String id;
@@ -18,9 +20,10 @@ class ProductItem extends StatelessWidget {
           backgroundColor: Colors.black87,
           leading: IconButton(
             onPressed: null,
-            icon: const Icon(Icons.favorite),
-            color: Theme.of(context).colorScheme.secondary,
-    
+            icon: Icon(
+              Icons.favorite,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
           title: Text(
             title,
@@ -28,14 +31,24 @@ class ProductItem extends StatelessWidget {
           ),
           trailing: IconButton(
             onPressed: null,
-            icon: const Icon(Icons.shopping_cart),
-            color: Theme.of(context).colorScheme.secondary,
-            
+            icon: Icon(
+              Icons.shopping_cart,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            // color: Theme.of(context).colorScheme.secondary,
           ),
         ),
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushNamed(
+              ProductDetailScreen.routeName,
+              arguments: id,
+            );
+          },
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );
