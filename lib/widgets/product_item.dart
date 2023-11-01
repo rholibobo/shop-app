@@ -17,14 +17,14 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final product = Provider.of<Product>(context);
-    return Consumer<Product>(
-      builder: (ctx, product, child) => ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: GridTile(
-          footer: GridTileBar(
-            backgroundColor: Colors.black87,
-            leading: IconButton(
+    final product = Provider.of<Product>(context, listen: false);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: GridTile(
+        footer: GridTileBar(
+          backgroundColor: Colors.black87,
+          leading: Consumer<Product>(
+            builder: (ctx, product, _) => IconButton(
               onPressed: () {
                 product.toggleFavoriteStatus();
               },
@@ -33,34 +33,34 @@ class ProductItem extends StatelessWidget {
                 color: Theme.of(context).colorScheme.secondary,
               ),
             ),
-            title: Text(
-              product.title,
-              textAlign: TextAlign.center,
-            ),
-            trailing: IconButton(
-              onPressed: null,
-              icon: Icon(
-                Icons.shopping_cart,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              // color: Theme.of(context).colorScheme.secondary,
-            ),
+            
           ),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.of(context).pushNamed(
-                ProductDetailScreen.routeName,
-                arguments: product.id,
-              );
-            },
-            child: Image.network(
-              product.imageUrl,
-              fit: BoxFit.cover,
+          title: Text(
+            product.title,
+            textAlign: TextAlign.center,
+          ),
+          trailing: IconButton(
+            onPressed: null,
+            icon: Icon(
+              Icons.shopping_cart,
+              color: Theme.of(context).colorScheme.secondary,
             ),
+            // color: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushNamed(
+              ProductDetailScreen.routeName,
+              arguments: product.id,
+            );
+          },
+          child: Image.network(
+            product.imageUrl,
+            fit: BoxFit.cover,
           ),
         ),
       ),
-      
     );
   }
 }
