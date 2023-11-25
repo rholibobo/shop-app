@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/http_exception.dart';
+
 import 'product.dart';
 
 class Products with ChangeNotifier {
@@ -63,12 +65,15 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    var url = Uri.parse(
+    final url = Uri.parse(
         'https://shop-app-practise-default-rtdb.firebaseio.com/products.json');
     try {
       final response = await http.get(url);
       // print(json.decode(response.body));
-      final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (extractedData == null) {
+        return;
+      }
       final List<Product> loadedProducts = [];
       extractedData.forEach((productId, productData) {
         loadedProducts.add(Product(
@@ -89,7 +94,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addItem(Product product) async {
-    var url = Uri.parse(
+    final url = Uri.parse(
         'https://shop-app-practise-default-rtdb.firebaseio.com/products.json');
     try {
       final response = await http.post(
@@ -117,16 +122,37 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateItem(String id, Product newProduct) {
+  Future<void> updateItem(String id, Product newProduct) async {
     int oldProdIndex = _items.indexWhere((item) => item.id == id);
     if (oldProdIndex >= 0) {
+      final url = Uri.parse(
+          'https://shop-app-practise-default-rtdb.firebaseio.com/products/$id.json');
+      await http.patch(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price
+          }));
       _items[oldProdIndex] = newProduct;
       notifyListeners();
     }
   }
 
-  void deleteItem(String id) {
-    _items.removeWhere((item) => item.id == id);
+  Future<void> deleteItem(String id) async {
+    final url = Uri.parse(
+        'https://shop-app-practise-default-rtdb.firebaseio.com/products/$id.json');
+    final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
+    Product? existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete Product.');
+    }
+    existingProduct = null;
   }
 }

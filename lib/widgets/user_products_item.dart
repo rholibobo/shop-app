@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +14,7 @@ class UserProductsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = ScaffoldMessenger.of(context);
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: NetworkImage(imageUrl),
@@ -31,8 +32,14 @@ class UserProductsItem extends StatelessWidget {
               icon: const Icon(Icons.edit),
             ),
             IconButton(
-              onPressed: () {
-                Provider.of<Products>(context, listen: false).deleteItem(id);
+              onPressed: () async {
+                try {
+                  await Provider.of<Products>(context, listen: false)
+                      .deleteItem(id);
+                } catch (error) {
+                  scaffold.showSnackBar(
+                      SnackBar(content: Text('Deleting Failed!')));
+                }
               },
               icon: const Icon(
                 Icons.delete,
