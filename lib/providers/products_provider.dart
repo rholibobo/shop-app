@@ -45,7 +45,12 @@ class Products with ChangeNotifier {
     // ),
   ];
 
-  var _showFavoritesOnly = false;
+  // var _showFavoritesOnly = false;
+
+  final String? authToken;
+  final String userId;
+
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     return [..._items];
@@ -64,35 +69,43 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
-        'https://shop-app-practise-default-rtdb.firebaseio.com/products.json');
-    try {
-      final response = await http.get(url);
-      // print(json.decode(response.body));
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
-      extractedData.forEach((productId, productData) {
-        loadedProducts.add(Product(
-          id: productId,
-          title: productData['title'],
-          description: productData['description'],
-          price: productData['price'],
-          isFavorite: productData['isFavorite'],
-          imageUrl: productData['imageUrl'],
-        ));
-      });
-      _items = loadedProducts;
-      notifyListeners();
-    } catch (error) {
-      rethrow;
-      // print(error);
-    }
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : "";
+    var url = Uri.parse(
+        'https://shop-app-practise-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
+    // try {
+    final response = await http.get(url);
+    // print(json.decode(response.body));
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    url = Uri.parse(
+        "https://shop-app-practise-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken");
+
+    final favoriteResponse = await http.get(url);
+    final favoriteData = json.decode(favoriteResponse.body);
+    final List<Product> loadedProducts = [];
+    extractedData.forEach((productId, productData) {
+      loadedProducts.add(Product(
+        id: productId,
+        title: productData['title'],
+        description: productData['description'],
+        price: productData['price'],
+        isFavorite:
+            favoriteData == null ? false : favoriteData[productId] ?? false,
+        imageUrl: productData['imageUrl'],
+      ));
+    });
+    _items = loadedProducts;
+    notifyListeners();
+    // } catch (error) {
+    //   rethrow;
+    //   // print(error);
+    // }
   }
 
   Future<void> addItem(Product product) async {
     final url = Uri.parse(
-        'https://shop-app-practise-default-rtdb.firebaseio.com/products.json');
+        'https://shop-app-practise-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.post(
         url,
@@ -101,7 +114,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavorite': product.isFavorite,
+          'creatorId': userId,
         }),
       );
       final newProduct = Product(
@@ -123,7 +136,7 @@ class Products with ChangeNotifier {
     int oldProdIndex = _items.indexWhere((item) => item.id == id);
     if (oldProdIndex >= 0) {
       final url = Uri.parse(
-          'https://shop-app-practise-default-rtdb.firebaseio.com/products/$id.json');
+          'https://shop-app-practise-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
       await http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -138,7 +151,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteItem(String id) async {
     final url = Uri.parse(
-        'https://shop-app-practise-default-rtdb.firebaseio.com/products/$id.json');
+        'https://shop-app-practise-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);

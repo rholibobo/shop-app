@@ -20,6 +20,10 @@ class Cart with ChangeNotifier {
     return {..._items};
   }
 
+  // final String authToken;
+
+  // Cart(this.authToken, this._items);
+
   int get itemCount {
     return _items.length;
   }
@@ -64,6 +68,5 @@ class Cart with ChangeNotifier {
     _items = {};
 
     notifyListeners();
-
   }
 }
