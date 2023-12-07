@@ -110,13 +110,13 @@ class _AuthCardState extends State<AuthCard> {
   void _showErrorDialog(String message) {
     showDialog(
         context: context,
-        builder: (ctx) => AlertDialog(
+        builder: (context) => AlertDialog(
               title: Text('An error occured!'),
               content: Text(message),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pop();
                   },
                   child: Text('Okay'),
                 )
