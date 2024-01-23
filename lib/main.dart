@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/screens/product_overview_screen.dart';
-
+import 'package:shop_app/helpers/custom_route.dart';
 import './screens/splash_screen.dart';
 
 import './providers/orders.dart';
@@ -68,7 +68,13 @@ class MyApp extends StatelessWidget {
                 primary: Colors.purple,
                 secondary: Colors.deepOrange,
               ),
+              appBarTheme: AppBarTheme(
+                backgroundColor: Colors.blue
+              ),
               fontFamily: 'Lato',
+              pageTransitionsTheme: PageTransitionsTheme(builders: {
+                TargetPlatform.android: CustomPageTransitionBuilder(), 
+              }),
               textTheme: TextTheme(
                 titleSmall: TextStyle(color: Colors.deepOrange),
               ),
